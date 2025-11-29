@@ -1,0 +1,7 @@
+{
+  "name": "WanderAI - Smart Travel Companion",
+  "description": "A mobile-first intelligent travel assistant that helps you discover local gems with Google Maps integration and generates detailed, personalized itineraries using Gemini AI.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
