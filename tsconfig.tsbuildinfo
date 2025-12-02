@@ -1,1 +1,0 @@
-{"root":["./app.tsx","./index.tsx","./components/bottomnav.tsx","./components/layout.tsx","./pages/explore.tsx","./pages/itineraryplanner.tsx","./pages/savedtrips.tsx","./types.ts","./vite.config.ts","./services/geminiservice.ts"],"version":"5.7.3"}
