@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI 交易分析平台</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <h1>AI 交易分析平台</h1>
+
+  <input id="symbol" placeholder="股票代碼，例如 2330" />
+  <select id="years">
+    <option value="1">1 年</option>
+    <option value="3">3 年</option>
+    <option value="5">5 年</option>
+    <option value="10">10 年</option>
+  </select>
+
+  <button onclick="analyzeStock()">開始分析</button>
+
+  <pre id="result"></pre>
+
+  <script src="app.js"></script>
+</body>
+</html>
