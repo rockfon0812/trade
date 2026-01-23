@@ -1,0 +1,5 @@
+{
+  "name": "TradeStrategy AI",
+  "description": "A professional stock strategy backtester powered by Gemini AI. Visualize strategy performance, calculate returns, and get AI-driven risk analysis.",
+  "requestFramePermissions": []
+}
