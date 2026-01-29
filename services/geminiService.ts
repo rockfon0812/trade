@@ -6,36 +6,6 @@ import { BacktestResult, StrategyParams, AIAnalysisResult, ThemeCandidate, Secto
 const LOCAL_API_KEY = process.env.API_KEY;
 const IS_LOCAL_MODE = !!LOCAL_API_KEY;
 
-/**
- * 通用 API 呼叫處理器 (BFF Pattern)
- * 開發模式：直連 Google GenAI (方便 Prompt 調校)
- * 公開模式：呼叫後端 API (隱藏 Key 與 Prompt)
- */
-async function dualModeGenerator<T>(
-  endpoint: string,
-  localLogic: () => Promise<T>,
-  payload: any
-): Promise<T> {
-  if (IS_LOCAL_MODE) {
-    console.log(`[DevMode] Direct Call: ${endpoint}`);
-    return localLogic();
-  } else {
-    // Public Mode: Call Serverless Function
-    try {
-      const response = await fetch(`/api/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!response.ok) throw new Error(`Server API Error: ${response.statusText}`);
-      return await response.json();
-    } catch (e) {
-      console.error(`[PublicMode] API Call Failed:`, e);
-      throw e;
-    }
-  }
-}
-
 export const analyzeSectorStrategyWithGemini = async (themeName: string, candidates: ThemeCandidate[], params: StrategyParams): Promise<SectorAnalysisResult> => {
   const sorted = [...candidates].filter(c => c.status === 'NORMAL');
   const representative = [
@@ -88,26 +58,25 @@ export const analyzeSectorStrategyWithGemini = async (themeName: string, candida
     }
   };
 
-  try {
-    return await dualModeGenerator(
-      'sector-analysis', // Backend Endpoint: /api/sector-analysis
-      localExecution,
-      { themeName, representative, params } // Payload for Server
-    );
-  } catch (error) {
+  // 本地模式直接執行，公開模式依賴環境變數配置
+  if (IS_LOCAL_MODE) {
+    console.log(`[DevMode] Direct Sector Analysis`);
+    return localExecution();
+  } else {
+    console.warn("[PublicMode] Sector Analysis requires GEMINI_API_KEY environment variable. Returning default response.");
     return { 
       sectorTrend: 'NEUTRAL',
-      trendReason: '分析服務暫時無法使用',
+      trendReason: '無法進行 AI 分析 - 請在 Vercel 環境變數中設置 GEMINI_API_KEY',
       confidenceScore: 0,
-      overview: "資料無法取得",
-      marketPerformance: "資料無法取得",
-      componentAnalysis: "資料無法取得",
-      technicalAnalysis: "資料無法取得",
-      chipAnalysis: "資料無法取得",
-      fundamentalAnalysis: "資料無法取得",
-      riskFactors: "資料無法取得",
+      overview: "分析服務暫時無法使用",
+      marketPerformance: "N/A",
+      componentAnalysis: "N/A",
+      technicalAnalysis: "N/A",
+      chipAnalysis: "N/A",
+      fundamentalAnalysis: "N/A",
+      riskFactors: "N/A",
       strategyAdvice: "請稍後再試",
-    }; 
+    };
   }
 };
 
@@ -158,28 +127,42 @@ export const analyzeStrategyWithGemini = async (result: BacktestResult, params: 
     }
   };
 
-  return dualModeGenerator(
-    'strategy-analysis', // Backend Endpoint: /api/strategy-analysis
-    localExecution,
-    { result, params }
-  );
+  // 本地模式直接執行，公開模式依賴環境變數配置
+  if (IS_LOCAL_MODE) {
+    console.log(`[DevMode] Direct AI Analysis`);
+    return localExecution();
+  } else {
+    console.warn("[PublicMode] AI Analysis requires GEMINI_API_KEY environment variable. Returning default response.");
+    return { 
+      report: {
+        companyProfile: "無法進行 AI 分析 - 請在 Vercel 環境變數中設置 GEMINI_API_KEY",
+        industryPosition: "N/A",
+        financialAnalysis: "N/A",
+        growthPotential: "N/A",
+        competitiveAdvantage: "N/A",
+        riskFactors: "N/A",
+        investmentAdvice: "N/A",
+        targetPriceZone: "N/A"
+      }
+    };
+  }
 };
 
 export const resolveSymbolFromGemini = async (input: string): Promise<string> => {
-  const localExecution = async () => {
-      try {
-        const ai = new GoogleGenAI({ apiKey: LOCAL_API_KEY });
-        const response = await ai.models.generateContent({ 
-          model: "gemini-3-flash-preview", 
-          contents: `將 "${input}" 轉換為 Yahoo Finance 代號（如 2330.TW）。僅回傳代號，不要有其他文字。` 
-        });
-        return response.text?.trim() || "ERROR";
-      } catch { return "ERROR"; }
-  };
+  if (!IS_LOCAL_MODE) {
+    console.warn("[PublicMode] Symbol resolution requires GEMINI_API_KEY. Please set it in environment variables.");
+    return "ERROR";
+  }
 
-  return dualModeGenerator(
-    'resolve-symbol',
-    localExecution,
-    { input }
-  );
+  try {
+    const ai = new GoogleGenAI({ apiKey: LOCAL_API_KEY });
+    const response = await ai.models.generateContent({ 
+      model: "gemini-3-flash-preview", 
+      contents: `將 "${input}" 轉換為 Yahoo Finance 代號（如 2330.TW）。僅回傳代號，不要有其他文字。` 
+    });
+    return response.text?.trim() || "ERROR";
+  } catch (error) {
+    console.error("Symbol resolution failed:", error);
+    return "ERROR";
+  }
 };
