@@ -75,56 +75,41 @@ const ThemeAnalysisPanel: React.FC<ThemeAnalysisPanelProps> = ({
           </div>
       </div>
 
-      {/* 2. DEEP DIVE REPORT GRID */}
-      {isSectorAiLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
-              {[1,2,3,4].map(i => <div key={i} className="h-32 bg-slate-800 rounded-xl"></div>)}
-          </div>
-      ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {/* 概況與表現 */}
-             <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <h4 className="text-[11px] font-black text-indigo-400 uppercase tracking-widest mb-3 border-b border-indigo-500/20 pb-2">1. 族群概況 (Overview)</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">{sectorAnalysis?.overview}</p>
-             </div>
-             <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <h4 className="text-[11px] font-black text-indigo-400 uppercase tracking-widest mb-3 border-b border-indigo-500/20 pb-2">2. 市場表現 (Performance)</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">{sectorAnalysis?.marketPerformance}</p>
-             </div>
-
-             {/* 技術與籌碼 */}
-             <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <h4 className="text-[11px] font-black text-sky-400 uppercase tracking-widest mb-3 border-b border-sky-500/20 pb-2">4. 技術面解析 (Technical)</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">{sectorAnalysis?.technicalAnalysis}</p>
-             </div>
-             <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <h4 className="text-[11px] font-black text-sky-400 uppercase tracking-widest mb-3 border-b border-sky-500/20 pb-2">5. 籌碼結構 (Chips)</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">{sectorAnalysis?.chipAnalysis}</p>
-             </div>
-
-             {/* 成分股與基本面 */}
-             <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-3 border-b border-emerald-500/20 pb-2">3. 成分股輪動 (Components)</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">{sectorAnalysis?.componentAnalysis}</p>
-             </div>
-             <div className="bg-slate-900/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-sm">
-                <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-3 border-b border-emerald-500/20 pb-2">6. 基本面展望 (Fundamental)</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">{sectorAnalysis?.fundamentalAnalysis}</p>
-             </div>
-
-             {/* 風險與策略 (Full Width) */}
-             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-rose-950/10 p-5 rounded-xl border border-rose-500/20">
-                    <h4 className="text-[11px] font-black text-rose-400 uppercase tracking-widest mb-3 border-b border-rose-500/20 pb-2">7. 關鍵風險 (Risks)</h4>
-                    <p className="text-xs text-rose-200/80 leading-relaxed">{sectorAnalysis?.riskFactors}</p>
+            {/* 2. 重新設計：研究報告 與 AI 決策 兩大區塊（字體放大、無內部滾動） */}
+            {isSectorAiLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+                    <div className="h-64 bg-slate-800 rounded-xl"></div>
+                    <div className="h-48 bg-slate-800 rounded-xl"></div>
                 </div>
-                <div className="bg-gradient-to-r from-indigo-900/40 to-slate-900/40 p-5 rounded-xl border border-indigo-500/40 shadow-lg">
-                    <h4 className="text-[11px] font-black text-white uppercase tracking-widest mb-3 border-b border-indigo-500/20 pb-2">8. 操作策略 (Strategy)</h4>
-                    <p className="text-xs text-slate-200 leading-relaxed font-medium">{sectorAnalysis?.strategyAdvice}</p>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* 研究報告（左） */}
+                    <section className="bg-slate-900 p-6 rounded-xl border border-slate-700 min-h-[360px]">
+                        <h4 className="text-2xl font-extrabold text-white mb-3">研究報告</h4>
+                        <div className="text-lg text-slate-200 space-y-4">
+                            <p><strong className="text-indigo-300">族群概況：</strong> {sectorAnalysis?.overview || '資料暫無'}</p>
+                            <p><strong className="text-indigo-300">市場表現：</strong> {sectorAnalysis?.marketPerformance || '資料暫無'}</p>
+                            <p><strong className="text-indigo-300">成分股輪動：</strong> {sectorAnalysis?.componentAnalysis || '資料暫無'}</p>
+                            <p><strong className="text-indigo-300">基本面展望：</strong> {sectorAnalysis?.fundamentalAnalysis || '資料暫無'}</p>
+                        </div>
+                    </section>
+
+                    {/* AI 決策（右） */}
+                    <section className="bg-slate-900 p-6 rounded-xl border border-slate-700 min-h-[360px]">
+                        <h4 className="text-2xl font-extrabold text-white mb-3">AI 決策與重點</h4>
+                        <div className="text-lg text-slate-200 space-y-4">
+                            <p><strong className="text-sky-300">技術面：</strong> {sectorAnalysis?.technicalAnalysis || '資料暫無'}</p>
+                            <p><strong className="text-sky-300">籌碼面：</strong> {sectorAnalysis?.chipAnalysis || '資料暫無'}</p>
+                            <p><strong className="text-rose-300">風險要點：</strong> {sectorAnalysis?.riskFactors || '資料暫無'}</p>
+                            <p><strong className="text-indigo-300">操作策略：</strong> {sectorAnalysis?.strategyAdvice || '資料暫無'}</p>
+                            <div className="pt-4">
+                                <h5 className="text-sm text-slate-400 uppercase tracking-wider mb-2">信心指數</h5>
+                                <div className="text-3xl font-black text-white">{sectorAnalysis?.confidenceScore ?? 'N/A'}</div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-             </div>
-          </div>
-      )}
+            )}
 
       {/* 3. RANKING TABLE */}
       <div className="bg-slate-800 rounded-2xl border border-slate-700 shadow-xl overflow-hidden mt-8">
