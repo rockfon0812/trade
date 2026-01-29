@@ -149,45 +149,19 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <aside className="lg:col-span-3">
-             <StrategyForm params={params} onChange={setParams} onRun={() => mode === 'SINGLE' ? handleSingleStockBacktest() : handleThemeAnalysis()} isLoading={isLoading} mode={mode} setMode={setMode} themeKeyword={themeKeyword} setThemeKeyword={setThemeKeyword} />
-          </aside>
+        {/* 如果沒有結果，顯示寬表單 */}
+        {!backtestResult && !themeReport && (
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <aside className="lg:col-span-2">
+              <StrategyForm params={params} onChange={setParams} onRun={() => mode === 'SINGLE' ? handleSingleStockBacktest() : handleThemeAnalysis()} isLoading={isLoading} mode={mode} setMode={setMode} themeKeyword={themeKeyword} setThemeKeyword={setThemeKeyword} />
+            </aside>
 
-          <main className="lg:col-span-9">
-            {error && <div className="bg-rose-500/10 border border-rose-500/40 text-rose-300 p-4 rounded-xl mb-6 text-xs font-bold">{error}</div>}
-            
-            {mode === 'SINGLE' && backtestResult && (
-              <div className="animate-fadeIn">
-                <MetricsPanel result={backtestResult} />
-                <Chart data={data} trades={backtestResult.trades} strategyType={executedParams?.type || 'SMA'} shortWindow={executedParams?.shortWindow || 5} longWindow={executedParams?.longWindow || 20} />
-                <ChipPanel data={data} />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <TradeList trades={backtestResult.trades} />
-                    <AIAnalysis analysis={aiAnalysis} backtestResult={backtestResult} isLoading={isAiLoading} />
-                </div>
-              </div>
-            )}
-
-            {mode === 'THEME' && themeReport && (
-               <ThemeAnalysisPanel 
-                 report={themeReport} 
-                 isLoading={isLoading} 
-                 theme={themeReport.theme} 
-                 isSectorAiLoading={isSectorAiLoading}
-                 onSelectStock={(c) => {
-                    setMode('SINGLE');
-                    // 更新輸入框以便使用者知道當前選的是誰
-                    setParams(p => ({...p, symbol: c.symbol}));
-                    handleSingleStockBacktest(c.symbol);
-                 }} 
-               />
-            )}
-
-            {!isLoading && !backtestResult && !themeReport && (
-              <div className="h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-slate-800 rounded-3xl text-slate-600 bg-slate-900/30">
+            <main className="lg:col-span-3">
+              {error && <div className="bg-rose-500/10 border border-rose-500/40 text-rose-300 p-4 rounded-xl mb-6 text-xs font-bold">{error}</div>}
+              
+              <div className="h-[500px] flex flex-col items-center justify-center border-2 border-dashed border-slate-800 rounded-3xl text-slate-600 bg-slate-900/30">
                   <div className="max-w-md text-center space-y-4">
-                     <h2 className="text-2xl font-black text-white">🚀 歡迎使用專業回測系統</h2>
+                     <h2 className="text-3xl font-black text-white">🚀 歡迎使用專業回測系統</h2>
                      <p className="text-sm text-slate-400 leading-relaxed">
                         本系統整合 Gemini AI 與多因子策略模型。請從左側面板開始：
                      </p>
@@ -202,14 +176,52 @@ const App: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-3">
                            <span className="w-6 h-6 flex items-center justify-center bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-bold">3</span>
-                           <span className="text-xs text-slate-300">點擊「AI 自動掃描」可自動尋找最佳參數。</span>
+                           <span className="text-xs text-slate-300">點擊「執行回測」開始分析。</span>
                         </div>
                      </div>
                   </div>
               </div>
+            </main>
+          </div>
+        )}
+
+        {/* 如果有結果，顯示全寬佈局 */}
+        {(backtestResult || themeReport) && (
+          <div className="flex flex-col gap-6">
+            {/* 圖表區域 - 固定上方 */}
+            {mode === 'SINGLE' && backtestResult && (
+              <div className="animate-fadeIn space-y-6">
+                <MetricsPanel result={backtestResult} />
+                <Chart data={data} trades={backtestResult.trades} strategyType={executedParams?.type || 'SMA'} shortWindow={executedParams?.shortWindow || 5} longWindow={executedParams?.longWindow || 20} />
+                <ChipPanel data={data} />
+              </div>
             )}
-          </main>
-        </div>
+
+            {/* 下方兩個區塊滿版 */}
+            {mode === 'SINGLE' && backtestResult && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TradeList trades={backtestResult.trades} />
+                <AIAnalysis analysis={aiAnalysis} backtestResult={backtestResult} isLoading={isAiLoading} />
+              </div>
+            )}
+
+            {mode === 'THEME' && themeReport && (
+               <ThemeAnalysisPanel 
+                 report={themeReport} 
+                 isLoading={isLoading} 
+                 theme={themeReport.theme} 
+                 isSectorAiLoading={isSectorAiLoading}
+                 onSelectStock={(c) => {
+                    setMode('SINGLE');
+                    setParams(p => ({...p, symbol: c.symbol}));
+                    handleSingleStockBacktest(c.symbol);
+                 }} 
+               />
+            )}
+
+            {error && <div className="bg-rose-500/10 border border-rose-500/40 text-rose-300 p-4 rounded-xl text-xs font-bold">{error}</div>}
+          </div>
+        )}
       </div>
     </div>
   );

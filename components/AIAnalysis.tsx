@@ -11,7 +11,7 @@ interface AIAnalysisProps {
 const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, backtestResult, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg animate-pulse h-full">
+      <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg animate-pulse h-full min-h-[500px]">
         <div className="h-6 bg-slate-700 rounded w-1/3 mb-6"></div>
         <div className="space-y-4">
           <div className="h-20 bg-slate-700/50 rounded w-full"></div>
@@ -25,7 +25,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, backtestResult, isLoa
   const aiConfig = backtestResult?.aiAutoConfig;
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden flex flex-col h-full animate-fadeIn">
+    <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden flex flex-col h-full min-h-[500px] animate-fadeIn">
       {/* Header */}
       <div className="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
         <h3 className="text-white font-bold flex items-center gap-2 text-sm uppercase">

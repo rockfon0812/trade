@@ -32,13 +32,13 @@ const TradeList: React.FC<TradeListProps> = ({ trades }) => {
   }, [trades]);
 
   if (trades.length === 0) return (
-    <div className="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-lg text-center h-full flex items-center justify-center">
+    <div className="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-lg text-center h-full min-h-[500px] flex items-center justify-center">
       <p className="text-slate-400">目前尚無成交紀錄</p>
     </div>
   );
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden flex flex-col h-full">
+    <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden flex flex-col h-full min-h-[500px]">
       <div className="p-4 bg-slate-900 border-b border-slate-700">
         <h3 className="text-white font-bold flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
