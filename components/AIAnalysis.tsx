@@ -6,9 +6,10 @@ interface AIAnalysisProps {
   analysis: AIAnalysisResult | null;
   backtestResult?: BacktestResult | null; // Added to access AI Auto Config Logs
   isLoading: boolean;
+  strategyDiagnosis?: { diagnosis: string; timeDistributionAnalysis: string; recommendedImprovement: string } | null;
 }
 
-const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, backtestResult, isLoading }) => {
+const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, backtestResult, isLoading, strategyDiagnosis }) => {
   if (isLoading) {
     return (
       <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-lg animate-pulse h-full min-h-[500px]">
@@ -167,6 +168,29 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, backtestResult, isLoa
                   )}
                 </div>
               </section>
+
+              {/* 策略診斷區塊 - 分析為何交易集中在特定時期 */}
+              {strategyDiagnosis && (
+                <section className="bg-slate-900 p-6 rounded-xl border border-slate-700 min-h-[280px]">
+                  <h4 className="text-2xl font-extrabold text-white mb-3">📊 策略診斷與時間分析</h4>
+                  <div className="text-lg text-slate-200 leading-relaxed space-y-4">
+                    <div className="bg-slate-800 p-4 rounded border border-amber-500/30">
+                      <h5 className="font-bold text-amber-300 mb-2">診斷摘要</h5>
+                      <p className="text-slate-300">{strategyDiagnosis.diagnosis}</p>
+                    </div>
+
+                    <div className="bg-slate-800 p-4 rounded border border-emerald-500/30">
+                      <h5 className="font-bold text-emerald-300 mb-2">交易時間分佈分析</h5>
+                      <p className="text-slate-300 whitespace-pre-wrap">{strategyDiagnosis.timeDistributionAnalysis}</p>
+                    </div>
+
+                    <div className="bg-slate-800 p-4 rounded border border-violet-500/30">
+                      <h5 className="font-bold text-violet-300 mb-2">改善建議</h5>
+                      <p className="text-slate-300 whitespace-pre-wrap">{strategyDiagnosis.recommendedImprovement}</p>
+                    </div>
+                  </div>
+                </section>
+              )}
             </div>
           </>
         )}

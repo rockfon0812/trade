@@ -9,7 +9,7 @@ import AIAnalysis from './components/AIAnalysis';
 import ThemeAnalysisPanel from './components/ThemeAnalysisPanel';
 import { fetchStockData } from './services/dataService';
 import { runBacktest, calculateIndicators } from './services/backtestService';
-import { analyzeStrategyWithGemini, analyzeSectorStrategyWithGemini, resolveSymbolFromGemini } from './services/geminiService';
+import { analyzeStrategyWithGemini, analyzeSectorStrategyWithGemini, resolveSymbolFromGemini, generateStrategyDiagnosisWithGemini } from './services/geminiService';
 import { THEME_LIST } from './services/themeData';
 import { StrategyParams, BacktestResult, StockData, AIAnalysisResult, ThemeAnalysisReport, ThemeCandidate } from './types';
 
@@ -58,12 +58,13 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [strategyDiagnosis, setStrategyDiagnosis] = useState<{ diagnosis: string; timeDistributionAnalysis: string; recommendedImprovement: string } | null>(null);
 
   const handleSingleStockBacktest = useCallback(async (overrideSymbol?: string) => {
     let targetInput = (overrideSymbol || params.symbol).trim();
     if (!targetInput) { setError("請輸入代號。"); return; }
     
-    setData([]); setBacktestResult(null); setAiAnalysis(null); setError(null); setIsLoading(true);
+    setData([]); setBacktestResult(null); setAiAnalysis(null); setStrategyDiagnosis(null); setError(null); setIsLoading(true);
     
     try {
       let ticker = targetInput;
@@ -90,8 +91,15 @@ const App: React.FC = () => {
 
       if (result.trades.length > 0) {
         setIsAiLoading(true);
-        const analysis = await analyzeStrategyWithGemini(result, {...params, startYear, endYear});
+        
+        // 並行調用兩個 AI 分析：投資報告 + 策略診斷
+        const [analysis, diagnosis] = await Promise.all([
+          analyzeStrategyWithGemini(result, {...params, startYear, endYear}),
+          generateStrategyDiagnosisWithGemini(result, {...params, startYear, endYear})
+        ]);
+        
         setAiAnalysis(analysis);
+        setStrategyDiagnosis(diagnosis);
         setIsAiLoading(false);
       }
     } catch (err: any) {
@@ -201,7 +209,7 @@ const App: React.FC = () => {
             {mode === 'SINGLE' && backtestResult && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <TradeList trades={backtestResult.trades} />
-                <AIAnalysis analysis={aiAnalysis} backtestResult={backtestResult} isLoading={isAiLoading} />
+                <AIAnalysis analysis={aiAnalysis} backtestResult={backtestResult} isLoading={isAiLoading} strategyDiagnosis={strategyDiagnosis} />
               </div>
             )}
 
