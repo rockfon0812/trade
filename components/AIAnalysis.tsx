@@ -68,11 +68,76 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, backtestResult, isLoa
                 <h4 className="text-2xl font-extrabold text-white mb-3">AI 決策與重點</h4>
                 <div className="text-lg text-slate-200 leading-relaxed">
                   {aiConfig ? (
-                    <div className="space-y-3">
-                      <p><strong className="text-indigo-300">推薦參數：</strong> {JSON.stringify(aiConfig.recommendedParams || aiConfig)}</p>
-                      <p><strong className="text-indigo-300">模型信心：</strong> {aiConfig.confidence ? `${aiConfig.confidence}%` : 'N/A'}</p>
-                      <p><strong className="text-indigo-300">關鍵要點：</strong> {aiConfig.summary || aiConfig.notes || '無'}</p>
-                    </div>
+                    (() => {
+                      const cfg: any = aiConfig as any;
+                      if (cfg && (cfg.backtestLog || cfg.bestCombination)) {
+                        return (
+                          <>
+                            <div className="mb-4">
+                              <div className="text-sm text-slate-400">推薦組合</div>
+                              <div className="text-xl font-black text-indigo-300">{cfg.bestCombination && cfg.bestCombination.length ? cfg.bestCombination[0] : (cfg.bestCombination || 'N/A')}</div>
+                            </div>
+
+                            <div className="grid grid-cols-4 gap-3 mb-4 text-center">
+                              <div className="bg-slate-800 p-3 rounded">
+                                <div className="text-xs text-slate-400">Sharpe</div>
+                                <div className="text-lg font-bold text-amber-400">{cfg.metrics?.sharpe ?? 'N/A'}</div>
+                              </div>
+                              <div className="bg-slate-800 p-3 rounded">
+                                <div className="text-xs text-slate-400">Return</div>
+                                <div className="text-lg font-bold text-emerald-400">{cfg.metrics?.return ?? 'N/A'}%</div>
+                              </div>
+                              <div className="bg-slate-800 p-3 rounded">
+                                <div className="text-xs text-slate-400">MDD</div>
+                                <div className="text-lg font-bold text-rose-400">-{cfg.metrics?.mdd ?? 'N/A'}%</div>
+                              </div>
+                              <div className="bg-slate-800 p-3 rounded">
+                                <div className="text-xs text-slate-400">Win Rate</div>
+                                <div className="text-lg font-bold text-white">{cfg.metrics?.winRate ?? 'N/A'}%</div>
+                              </div>
+                            </div>
+
+                            <div className="overflow-x-auto rounded-lg border border-slate-700 mb-4">
+                              <table className="w-full text-sm text-left">
+                                <thead className="bg-slate-900 text-slate-400 uppercase text-xs">
+                                  <tr>
+                                    <th className="px-3 py-2">組合</th>
+                                    <th className="px-3 py-2">類型</th>
+                                    <th className="px-3 py-2">頻率</th>
+                                    <th className="px-3 py-2 text-right">交易次數</th>
+                                    <th className="px-3 py-2 text-right">勝率</th>
+                                    <th className="px-3 py-2 text-right">報酬</th>
+                                    <th className="px-3 py-2 text-right">MDD</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-700/50 bg-slate-900/30">
+                                  {Array.isArray(cfg.backtestLog) && cfg.backtestLog.map((log: any, idx: number) => (
+                                    <tr key={idx} className={log.status === 'OPTIMAL' ? 'bg-indigo-900/20' : 'hover:bg-slate-800/50'}>
+                                      <td className="px-3 py-2 font-bold text-slate-300">{log.combination}</td>
+                                      <td className="px-3 py-2 text-xs text-slate-400">{log.logicType}</td>
+                                      <td className="px-3 py-2 text-xs text-slate-400">{log.frequency}</td>
+                                      <td className="px-3 py-2 text-right font-mono text-slate-400">{log.tradeCount}</td>
+                                      <td className="px-3 py-2 text-right font-mono text-slate-300">{log.winRate}%</td>
+                                      <td className={`px-3 py-2 text-right font-mono font-bold ${log.return >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{log.return}%</td>
+                                      <td className="px-3 py-2 text-right text-rose-400 font-mono">-{log.mdd}%</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <div className="bg-slate-900/80 p-4 rounded border border-indigo-500/30 text-sm text-slate-300 shadow-inner whitespace-pre-wrap">
+                              <h5 className="font-bold text-indigo-400 mb-2">AI 建議</h5>
+                              <div>{cfg.aiRecommendation || cfg.aiRecommendationText || cfg.aiRecommendation || '無'}</div>
+                            </div>
+
+                            <div className="mt-3 text-sm text-slate-400">模型信心: <span className="font-bold text-white">{cfg.confidence ?? 'N/A'}</span></div>
+                          </>
+                        );
+                      }
+
+                      return (<p className="text-slate-400">AI 決策資料暫無或尚在生成中。</p>);
+                    })()
                   ) : (
                     <p className="text-slate-400">AI 決策資料暫無或尚在生成中。</p>
                   )}
