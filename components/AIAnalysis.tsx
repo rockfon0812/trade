@@ -52,14 +52,38 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ analysis, backtestResult, isLoa
               <section className="bg-slate-900 p-6 rounded-xl border border-slate-700 min-h-[320px]">
                 <h4 className="text-2xl font-extrabold text-white mb-3">專業研究報告</h4>
                 <div className="text-lg text-slate-200 leading-relaxed space-y-4">
-                  <p><strong className="text-indigo-300">公司簡介：</strong> {report?.companyProfile || '資料暫無'}</p>
-                  <p><strong className="text-indigo-300">產業地位：</strong> {report?.industryPosition || '資料暫無'}</p>
-                  <p><strong className="text-indigo-300">財務分析：</strong> {report?.financialAnalysis || '資料暫無'}</p>
-                  <p><strong className="text-indigo-300">成長性：</strong> {report?.growthPotential || '資料暫無'}</p>
-                  <p><strong className="text-indigo-300">競爭優勢：</strong> {report?.competitiveAdvantage || '資料暫無'}</p>
-                  <p><strong className="text-indigo-300">風險因子：</strong> {report?.riskFactors || '資料暫無'}</p>
-                  <p><strong className="text-indigo-300">投資建議：</strong> <span className="text-2xl font-black text-amber-400">{report?.investmentAdvice || 'N/A'}</span></p>
-                  <p><strong className="text-indigo-300">目標價區間：</strong> {report?.targetPriceZone || 'N/A'}</p>
+                  {report ? (
+                    <>
+                      <p><strong className="text-indigo-300">公司簡介：</strong> {report.companyProfile || '資料暫無'}</p>
+                      <p><strong className="text-indigo-300">產業地位：</strong> {report.industryPosition || '資料暫無'}</p>
+                      <p><strong className="text-indigo-300">財務分析：</strong> {report.financialAnalysis || '資料暫無'}</p>
+                      <p><strong className="text-indigo-300">成長性：</strong> {report.growthPotential || '資料暫無'}</p>
+                      <p><strong className="text-indigo-300">競爭優勢：</strong> {report.competitiveAdvantage || '資料暫無'}</p>
+                      <p><strong className="text-indigo-300">風險因子：</strong> {report.riskFactors || '資料暫無'}</p>
+                      <p><strong className="text-indigo-300">投資建議：</strong> <span className="text-2xl font-black text-amber-400">{report.investmentAdvice || 'N/A'}</span></p>
+                      <p><strong className="text-indigo-300">目標價區間：</strong> {report.targetPriceZone || 'N/A'}</p>
+                    </>
+                  ) : (
+                    (() => {
+                      const cfg: any = aiConfig as any;
+                      if (cfg && Array.isArray(cfg.backtestLog) && cfg.backtestLog.length > 0) {
+                        const primary = cfg.backtestLog.find((l: any) => l.status === 'OPTIMAL') || cfg.backtestLog[0];
+                        return (
+                          <>
+                            <p><strong className="text-indigo-300">推薦組合：</strong> <span className="font-bold text-white text-xl">{primary.combination}</span></p>
+                            <p><strong className="text-indigo-300">策略類型：</strong> {primary.logicType} / {primary.timeframe} / {primary.frequency}</p>
+                            <p><strong className="text-indigo-300">指標：</strong> {(primary.indicators || []).join('，') || '無'}</p>
+                            <p><strong className="text-indigo-300">指標角色：</strong> {primary.roleDescription || '無'}</p>
+                            <p><strong className="text-indigo-300">績效摘要：</strong> 交易次數 {primary.tradeCount}，勝率 {primary.winRate}%，報酬 {primary.return}%，MDD {primary.mdd}%</p>
+                            <p><strong className="text-indigo-300">狀態/原因：</strong> {primary.status} / {primary.reason || '無'}</p>
+                            <p className="text-sm text-slate-400">此內容由回測結果摘要生成；如需更完整研究報告，請執行深入分析。</p>
+                          </>
+                        );
+                      }
+
+                      return (<p className="text-slate-400">請先執行回測以生成投資報告或等待 AI 產生分析內容。</p>);
+                    })()
+                  )}
                 </div>
               </section>
 
